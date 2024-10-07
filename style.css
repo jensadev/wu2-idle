@@ -1,0 +1,76 @@
+:root {
+  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+
+  color-scheme: light dark;
+  color: rgba(255, 255, 255, 0.87);
+  background-color: #242424;
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+
+  --gutter: 1rem;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  font-size: 1.2rem;
+  height: 100vh;
+}
+
+.wrapper {
+  max-width: var(--wrapper-max-width, 65rem);
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: var(--gutter);
+  padding-right: var(--gutter);
+  position: relative;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(
+      var(--grid-placement, auto-fill),
+      minmax(var(--grid-min-item-size, 16rem), 1fr)
+  );
+  gap: var(--gutter, var(--space-s-l));
+}
+
+.grid[data-layout="50-50"] {
+  --grid-placement: auto-fit;
+  --grid-min-item-size: clamp(16rem, 50vw, 22rem);
+}
+
+.column {
+  padding: var(--gutter);
+  display: grid;
+  place-content: center;
+}
+
+#attack {
+  background-color: #f44336;
+  font-size: 2rem;
+}
+
+.card {
+  border: 4px solid transparent;
+  padding: 1rem;
+  position: relative;
+}
+
+.hit {
+  position: absolute;
+  color: red;
+  font-size: 3rem;
+  font-weight: bold;
+  top: 50%;
+  left: 50%;
+}
+
+.attacked {
+  border: 4px solid white;
+}
