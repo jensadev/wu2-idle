@@ -34,28 +34,30 @@ const randInt = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min
 
 const playerStats = {
   name: "Player",
-  image: "https://via.placeholder.com/150",
+  image: "https://c.tenor.com/KrDjEvI0oFsAAAAC/tenor.gif",
   health: 100,
   attack: {
     damage: {
       min: 2,
       max: 4,
     },
-    speed: 1000,
-    last: 0,
+    idleSpeed: 1000,
+    attackSpeed: 500,
+    lastIdle: 0,
+    lastActive: 0
   }
 }
 const enemyStats = {
   name: "Enemy",
-  image: "https://via.placeholder.com/150",
+  image: "https://c.tenor.com/UC10oty08kAAAAAC/tenor.gif",
   health: 100,
   attack: {
     damage: {
       min: 2,
       max: 4,
     },
-    speed: 1000,
-    last: 0,
+    idleSpeed: 1000,
+    lastIdle: 0,
   }
 }
 const player = createUnitCard(playerStats)
@@ -69,24 +71,56 @@ attackButton.textContent = "Attack"
 attackButton.id = "attack"
 leftColumn.appendChild(attackButton)
 
+const playerHistory = createGameElement("div", "history")
+leftColumn.appendChild(playerHistory)
+const enemyHistory = createGameElement("div", "history")
+rightColumn.appendChild(enemyHistory)
+
+const historyList = createGameElement("ul", "history-list")
+playerHistory.appendChild(historyList)
+enemyHistory.appendChild(historyList.cloneNode(true))
+
+const addHistoryItem = (element, text) => {
+  const historyItems = element.querySelectorAll(".history-item")
+  if (historyItems.length >= 5) {
+    historyItems[0].remove()
+  }
+  const li = createGameElement("li", "history-item")
+  li.textContent = text
+  element.appendChild(li)
+}
+
 attackButton.addEventListener("click", () => {
+  const currentTime = Date.now();
+
+  if (currentTime < playerStats.attack.lastActive + playerStats.attack.attackSpeed) {
+    return; // Not ready to attack yet
+  }
+
+  playerStats.attack.lastActive = currentTime;
+
   const damage = randInt(playerStats.attack.damage.min, playerStats.attack.damage.max)
   attackAnimation(enemy, damage)
   enemyStats.health -= damage
   enemy.querySelector(".health").textContent = enemyStats.health
+  addHistoryItem(playerHistory, `Player slashed for ${damage}`)
 })
 
 const attackAnimation = (element, damage) => {
   element.classList.add("attacked")
-  const hit = createGameElement("div", "hit")
-  hit.textContent = damage
-  element.appendChild(hit)
+  const hitElement = createGameElement("div", "hit")
+  hitElement.textContent = `-${damage}`
+  // Randomize position using CSS variables
+   hitElement.style.setProperty('--random-x', `${randInt(-40, 40)}px`)
+   hitElement.style.setProperty('--random-y', `${randInt(-40, 40)}px`)
+ 
+  element.appendChild(hitElement)
   setTimeout(() => {
-    hit.remove()
-  }, 300)
+    hitElement.remove()
+  }, 500)
   setTimeout(() => {
     element.classList.remove("attacked")
-  }, 100)
+  }, 50)
 }
 
 
@@ -97,21 +131,21 @@ const step = (timestamp) => {
   //   lastTimestamp = timestamp
   // }
 
-  if (timestamp - playerStats.attack.last >= playerStats.attack.speed ) {
-    console.log("player smash enemy")
+  if (timestamp - playerStats.attack.lastIdle >= playerStats.attack.idleSpeed ) {
     const damage = randInt(playerStats.attack.damage.min, playerStats.attack.damage.max)
     attackAnimation(enemy, damage)
     enemyStats.health -= damage
     enemy.querySelector(".health").textContent = enemyStats.health
-    playerStats.attack.last = timestamp
+    playerStats.attack.lastIdle = timestamp
+    addHistoryItem(playerHistory, `Player attacked for ${damage}`)
   }
-  if (timestamp - enemyStats.attack.last >= enemyStats.attack.speed ) {
-    console.log("enemy smash player")
+  if (timestamp - enemyStats.attack.lastIdle >= enemyStats.attack.idleSpeed ) {
     const damage = randInt(enemyStats.attack.damage.min, enemyStats.attack.damage.max)
     attackAnimation(player, damage)
     playerStats.health -= damage
     player.querySelector(".health").textContent = playerStats.health
-    enemyStats.attack.last = timestamp
+    enemyStats.attack.lastIdle = timestamp
+    addHistoryItem(enemyHistory, `Enemy attacked for ${damage}`)
   }
   lastTimestamp = timestamp
 
