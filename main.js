@@ -41,7 +41,7 @@ const playerStats = {
       min: 2,
       max: 4,
     },
-    idleSpeed: 1000,
+    idleSpeed: 1000,  
     attackSpeed: 500,
     lastIdle: 0,
     lastActive: 0
